@@ -29,7 +29,7 @@ def df_to_px_mask(df, channels=['footprint'], out_file=None, reference_im=None,
         geometries in `df` are not in pixel coordinates, then `affine` or
         `reference_im` must be passed to provide the transformation to convert.
     channels : list, optional
-        The mask channels to generate. There are three values that this can
+        The mask channels to generate. There are three of four values that this can
         contain:
 
         - ``"footprint"``: Create a full footprint mask, with 0s at pixels
@@ -40,6 +40,9 @@ def df_to_px_mask(df, channels=['footprint'], out_file=None, reference_im=None,
         - ``"contact"``: Create a mask with regions between >= 2 closely
             juxtaposed geometries labeled. Use `contact_spacing` to set the
             maximum spacing between polygons to be labeled.
+        - ``"road"``: Create a full road mask, with 0s at pixels
+            that don't fall within geometries and `burn_value` at pixels that
+            do. Use `width` to set how thick the boundary will be drawn.
 
         Each channel correspond to its own `shape` plane in the output.
     out_file : str, optional
@@ -112,6 +115,13 @@ def df_to_px_mask(df, channels=['footprint'], out_file=None, reference_im=None,
             df=df, reference_im=reference_im, geom_col=geom_col,
             affine_obj=affine_obj, shape=shape, out_type=out_type,
             contact_spacing=kwargs.get('contact_spacing', 10),
+            burn_value=burn_value,
+            meters=kwargs.get('meters', False)
+        )
+    if 'road' in channels:
+        mask_dict['road'] = road_mask(
+            df=df, reference_im=reference_im, geom_col=geom_col,
+            affine_obj=affine_obj, shape=shape, out_type=out_type,
             burn_value=burn_value,
             meters=kwargs.get('meters', False)
         )
