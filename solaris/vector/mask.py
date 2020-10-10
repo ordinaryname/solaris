@@ -118,8 +118,8 @@ def df_to_px_mask(df, channels=['footprint'], out_file=None, reference_im=None,
             burn_value=burn_value,
             meters=kwargs.get('meters', False)
         )
-    if 'road' in channels:
-        mask_dict['road'] = road_mask(
+    if 'raw' in channels:
+        mask_dict['raw'] = image_mask(
             df=df, reference_im=reference_im, geom_col=geom_col,
             affine_obj=affine_obj, shape=shape, out_type=out_type,
             burn_value=burn_value,
@@ -141,6 +141,40 @@ def df_to_px_mask(df, channels=['footprint'], out_file=None, reference_im=None,
 
     return output_arr
 
+def image_mask(df, out_file=None, reference_im=None, geom_col='geometry',
+                   do_transform=None, affine_obj=None, shape=(900, 900),
+                   out_type='int', burn_value=255, burn_field=None):
+    """Convert reference image to a numpy array.
+
+    Arguments
+    ---------
+    reference_im : class:`rasterio.DatasetReader` or `str`, required. An image
+        to extract raw pixel values from.
+
+    Returns
+    -------
+    mask : class:`numpy.array`
+        A pixel mask with original pixel values.
+
+    """
+    # start with required checks
+    if not reference_im:
+        raise ValueError('`reference_im` must be provided.')
+
+    if len(df) > 0:
+        output_arr = reference_im.read(1)
+    else:
+        output_arr = np.zeros(shape=shape, dtype='uint8')
+    if out_file:
+        meta = reference_im.meta.copy()
+        meta.update(count=1)
+        if out_type == 'int':
+            meta.update(dtype='uint8')
+            meta.update(nodata=0)
+        with rasterio.open(out_file, 'w', **meta) as dst:
+            dst.write(output_arr, indexes=1)
+
+    return output_arr
 
 def footprint_mask(df, out_file=None, reference_im=None, geom_col='geometry',
                    do_transform=None, affine_obj=None, shape=(900, 900),
