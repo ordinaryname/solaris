@@ -161,6 +161,7 @@ def image_mask(df, out_file=None, reference_im=None, geom_col='geometry',
         raise ValueError('`reference_im` must be provided.')
 
     if len(df) > 0:
+        reference_im = _check_rasterio_im_load(reference_im)
         output_arr = reference_im.read(1)
     else:
         output_arr = np.zeros(shape=shape, dtype='uint8')
