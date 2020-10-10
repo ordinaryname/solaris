@@ -122,8 +122,7 @@ def df_to_px_mask(df, channels=['footprint'], out_file=None, reference_im=None,
         mask_dict['raw'] = image_mask(
             df=df, reference_im=reference_im, geom_col=geom_col,
             affine_obj=affine_obj, shape=shape, out_type=out_type,
-            burn_value=burn_value,
-            meters=kwargs.get('meters', False)
+            burn_value=burn_value
         )
 
     output_arr = np.stack([mask_dict[c] for c in channels], axis=-1)
