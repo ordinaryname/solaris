@@ -118,11 +118,23 @@ def df_to_px_mask(df, channels=['footprint'], out_file=None, reference_im=None,
             burn_value=burn_value,
             meters=kwargs.get('meters', False)
         )
-    if 'raw' in channels:
-        mask_dict['raw'] = image_mask(
+    if 'band1' in channels:
+        mask_dict['band1'] = image_mask(
             df=df, reference_im=reference_im, geom_col=geom_col,
             affine_obj=affine_obj, shape=shape, out_type=out_type,
-            burn_value=burn_value
+            burn_value=burn_value, band=1
+        )
+    if 'band2' in channels:
+        mask_dict['band1'] = image_mask(
+            df=df, reference_im=reference_im, geom_col=geom_col,
+            affine_obj=affine_obj, shape=shape, out_type=out_type,
+            burn_value=burn_value, band=2
+        )
+    if 'band3' in channels:
+        mask_dict['band1'] = image_mask(
+            df=df, reference_im=reference_im, geom_col=geom_col,
+            affine_obj=affine_obj, shape=shape, out_type=out_type,
+            burn_value=burn_value, band=3
         )
 
     output_arr = np.stack([mask_dict[c] for c in channels], axis=-1)
@@ -142,7 +154,7 @@ def df_to_px_mask(df, channels=['footprint'], out_file=None, reference_im=None,
 
 def image_mask(df, out_file=None, reference_im=None, geom_col='geometry',
                    do_transform=None, affine_obj=None, shape=(900, 900),
-                   out_type='int', burn_value=255, burn_field=None):
+                   out_type='int', burn_value=255, burn_field=None, band=1):
     """Convert reference image to a numpy array.
 
     Arguments
@@ -162,7 +174,7 @@ def image_mask(df, out_file=None, reference_im=None, geom_col='geometry',
 
     if len(df) > 0:
         reference_im = _check_rasterio_im_load(reference_im)
-        output_arr = reference_im.read(1)
+        output_arr = reference_im.read(band)
     else:
         output_arr = np.zeros(shape=shape, dtype='uint8')
     if out_file:
